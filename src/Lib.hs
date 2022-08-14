@@ -30,7 +30,6 @@ type UserId = UUID
 instance FromJSON User
 instance ToJSON   User
 
-
 instance FromJSON Lobby
 instance ToJSON   Lobby
 

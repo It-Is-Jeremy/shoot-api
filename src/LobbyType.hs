@@ -16,6 +16,6 @@ import GHC.Generics
 import GHC.TypeLits
 
 data Lobby = Lobby
-  { userId        :: UUID
+  { lobbyId        :: UUID
   , users         :: [String]
   } deriving Generic
