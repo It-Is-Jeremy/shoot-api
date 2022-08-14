@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: cd45f2380cb1fc158986dfa853a8fbbd03e092740b9eda0562f3885bbdbd8033
+-- hash: 2a4d636fc733f076019183153cbf857fee2ef884e45d810960ab9568aade2573
 
 name:           shoot-api
 version:        0.1.0.0
@@ -28,7 +28,9 @@ source-repository head
 library
   exposed-modules:
       Lib
+      LobbyType
       SimpleApi
+      UserType
   other-modules:
       Paths_shoot_api
   hs-source-dirs:

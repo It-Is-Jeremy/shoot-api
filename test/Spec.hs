@@ -11,9 +11,9 @@ main = hspec spec
 
 spec :: Spec
 spec = with (return app) $ do
-    describe "GET /users" $ do
+    describe "GET /lobby" $ do
         it "responds with 200" $ do
-            get "/users" `shouldRespondWith` 200
-        it "responds with [User]" $ do
-            let users = "[{\"userId\":1,\"userFirstName\":\"Isaac\",\"userLastName\":\"Newton\"},{\"userId\":2,\"userFirstName\":\"Albert\",\"userLastName\":\"Einstein\"}]"
-            get "/users" `shouldRespondWith` users
+            get "/lobby" `shouldRespondWith` 200
+    describe "GET /user" $ do
+            it "responds with 200" $ do
+                get "/user" `shouldRespondWith` 200

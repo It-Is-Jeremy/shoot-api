@@ -1,8 +1,8 @@
 {-# LANGUAGE DataKinds       #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeOperators   #-}
-{-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE KindSignatures #-}
+{-# LANGUAGE DeriveGeneric   #-}
+{-# LANGUAGE KindSignatures  #-}
 module Lib
     ( startApp
     , app
@@ -19,16 +19,37 @@ import Control.Monad.IO.Class (liftIO)
 import Data.UUID
 import Data.UUID.V4
 
+import UserType
+import LobbyType
 import SimpleApi
 
 type LobbyId = UUID
+type UserId = UUID
 
-type API = SimpleAPI "lobby" Lobby LobbyId
 
-data Lobby = Lobby
-  { id        :: UUID
-  } deriving (Eq, Show)
-$(deriveJSON defaultOptions ''Lobby)
+instance FromJSON User
+instance ToJSON   User
+
+
+instance FromJSON Lobby
+instance ToJSON   Lobby
+
+type FactoringAPI =
+  "x" :> Capture "x" Int :>
+      (    QueryParam "y" Int :> Get '[JSON] Int
+      :<|>                       Post '[JSON] Int
+      )
+
+factoringServer :: Server FactoringAPI
+factoringServer x = getXY :<|> postX
+  where getXY Nothing  = return x
+        getXY (Just y) = return (x + y)
+        postX = return (x - 1)
+
+type API = FactoringAPI
+     :<|> SimpleAPI "lobby" Lobby LobbyId
+     :<|> SimpleAPI "user" User UserId
+
 
 
 simpleServer
@@ -42,15 +63,29 @@ simpleServer listAs getA postA =
 lobbyServer :: Server (SimpleAPI "lobby" Lobby LobbyId)
 lobbyServer = simpleServer
   (return [])
-  (\lobbyId ->
-      if lobbyId == nil
+  (\requestId ->
+      if requestId == nil
       then do
          id <- liftIO (nextRandom)
-         return $ (Lobby id)
+         return $ (Lobby id [])
       else
-        return $ (Lobby lobbyId)
+        return $ (Lobby requestId [])
   )
   (\_lobby -> return NoContent)
+
+
+userServer :: Server (SimpleAPI "user" User UserId)
+userServer = simpleServer
+  (return [])
+  (\userId ->
+      if userId == nil
+      then do
+         id <- liftIO (nextRandom)
+         return $ (User id "John")
+      else
+        return $ (User userId "James")
+  )
+  (\_user -> return NoContent)
 
 startApp :: IO ()
 startApp = run 8080 app
@@ -59,4 +94,5 @@ api :: Proxy API
 api = Proxy
 
 app :: Application
-app = serve api lobbyServer
+app = serve api $
+        factoringServer :<|> lobbyServer :<|> userServer
