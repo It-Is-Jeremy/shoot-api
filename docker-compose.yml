@@ -1,0 +1,8 @@
+web:
+  build: .
+  command: stack run
+  stdin_open: true
+  volumes:
+    - .:/app
+  ports:
+    - "8080:8080"
